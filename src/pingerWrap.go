@@ -34,10 +34,8 @@ func (thisPingerWrap *tPingerWrap) start(ctx context.Context) {
 	wgChild.Add(1)
 	go (func() {
 		defer wgChild.Done()
-		defer (func() {
-			defer thisPingerWrap.cancelFunc()
-			logger.Log(labelinglog.FlgDebug, "(id "+thisPingerWrap.idStr+")"+" finish pinger.Run")
-		})()
+		defer thisPingerWrap.cancelFunc()
+		defer logger.Log(labelinglog.FlgDebug, "(id "+thisPingerWrap.idStr+")"+" finish pinger.Run")
 		logger.Log(labelinglog.FlgDebug, "(id "+thisPingerWrap.idStr+")"+" Start pinger.Run")
 
 		thisPingerWrap.pinger.Run(ctx)
@@ -59,21 +57,20 @@ func (thisPingerWrap *tPingerWrap) start(ctx context.Context) {
 }
 
 func (thisPingerWrap *tPingerWrap) result(ctx context.Context) {
+	defer thisPingerWrap.cancelFunc()
+	defer logger.Log(labelinglog.FlgDebug, "(id "+thisPingerWrap.idStr+")"+" finish pinger.GetChIcmpResult")
 	defer (func() {
-		defer thisPingerWrap.cancelFunc()
-		logger.Log(labelinglog.FlgDebug, "(id "+thisPingerWrap.idStr+")"+" finish pinger.GetChIcmpResult")
-
-		(func() {
-			thisPingerWrap.chResultListener.Lock()
-			defer thisPingerWrap.chResultListener.Unlock()
-			for _, ch := range thisPingerWrap.chResultListener.list {
-				close(ch)
-			}
-		})()
+		thisPingerWrap.chResultListener.Lock()
+		defer thisPingerWrap.chResultListener.Unlock()
+		for _, ch := range thisPingerWrap.chResultListener.list {
+			close(ch)
+		}
+		thisPingerWrap.chResultListener.list = make([]chan<- *pb.IcmpResult, 0)
 	})()
 	logger.Log(labelinglog.FlgDebug, "(id "+thisPingerWrap.idStr+")"+" Start pinger.GetChIcmpResult")
 
-	chIcmpResult := thisPingerWrap.pinger.GetChIcmpResult(64)
+	targetsOrder := thisPingerWrap.pinger.GetInfo().TargetsOrder
+	chIcmpResult := thisPingerWrap.pinger.GetChIcmpResult(len(targetsOrder) * 2)
 	for {
 		select {
 		case <-ctx.Done():
@@ -116,17 +113,15 @@ func (thisPingerWrap *tPingerWrap) result(ctx context.Context) {
 }
 
 func (thisPingerWrap *tPingerWrap) statistics(ctx context.Context) {
+	defer thisPingerWrap.cancelFunc()
+	defer logger.Log(labelinglog.FlgDebug, "(id "+thisPingerWrap.idStr+")"+" finish pinger.GetStatistics")
 	defer (func() {
-		defer thisPingerWrap.cancelFunc()
-		logger.Log(labelinglog.FlgDebug, "(id "+thisPingerWrap.idStr+")"+" finish pinger.GetStatistics")
-
-		(func() {
-			thisPingerWrap.chStatisticsListener.Lock()
-			defer thisPingerWrap.chStatisticsListener.Unlock()
-			for _, ch := range thisPingerWrap.chStatisticsListener.list {
-				close(ch)
-			}
-		})()
+		thisPingerWrap.chStatisticsListener.Lock()
+		defer thisPingerWrap.chStatisticsListener.Unlock()
+		for _, ch := range thisPingerWrap.chStatisticsListener.list {
+			close(ch)
+		}
+		thisPingerWrap.chStatisticsListener.list = make([]chan<- *pb.Statistics, 0)
 	})()
 	logger.Log(labelinglog.FlgDebug, "(id "+thisPingerWrap.idStr+")"+" Start pinger.GetStatistics")
 

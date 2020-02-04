@@ -54,7 +54,8 @@ func (thisServer *pingerServer) pingerStart(ctx context.Context, request tStartR
 	wgChild := sync.WaitGroup{}
 
 	config := pinger4.DefaultConfig()
-	config.DebugEnable = *debugFlag
+	config.DebugEnable = *argDebugFlag
+	config.DebugPrintIntervalSec = debugPrintIntervalSec
 	config.SourceIPAddress = thisServer.config.ICMPSourceIPAddress
 	limit := thisServer.config.Limit
 	config.IntervalMillisec = int64(crump(request.intervalMillisec, limit.IntervalMillisec))
@@ -64,7 +65,7 @@ func (thisServer *pingerServer) pingerStart(ctx context.Context, request tStartR
 	id := request.id
 	pinger := pinger4.New(int(id), config)
 	pinger.SetLogWriter(labelinglog.FlgsetAll, serverLogWriter)
-	if *debugFlag {
+	if *argDebugFlag {
 		pinger.SetLogEnableLevel(labelinglog.FlgsetAll)
 	} else {
 		pinger.SetLogEnableLevel(labelinglog.FlgsetCommon)
@@ -111,11 +112,9 @@ func (thisServer *pingerServer) pingerStart(ctx context.Context, request tStartR
 	wgChild.Add(1)
 	go (func() {
 		defer wgChild.Done()
+		defer childCtxCancel()
+		defer logger.Log(labelinglog.FlgDebug, "(id "+p.idStr+")"+" finish time.After")
 		logger.Log(labelinglog.FlgDebug, "(id "+p.idStr+")"+" Start time.After")
-		defer (func() {
-			logger.Log(labelinglog.FlgDebug, "(id "+p.idStr+")"+" finish time.After")
-			childCtxCancel()
-		})()
 
 		select {
 		case <-childCtx.Done():

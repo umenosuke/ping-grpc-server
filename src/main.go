@@ -31,6 +31,7 @@ import (
 )
 
 const terminateTimeOutSec = 5
+const debugPrintIntervalSec = 30
 
 var serverLogWriter = os.Stderr
 
@@ -39,15 +40,21 @@ var exitCode = 0
 var logger = labelinglog.New("pinger-grpc", serverLogWriter)
 
 var (
-	debugFlag      = flag.Bool("debug", false, "print debug log")
-	configPath     = flag.String("configPath", "./ping-grpc.conf.json", "config file path")
-	printConfigFlg = flag.Bool("printConfig", false, "print default config")
+	metaVersion  = "unknown"
+	metaRevision = "unknown"
+)
+
+var (
+	argDebugFlag       = flag.Bool("debug", false, "print debug log")
+	argConfigPath      = flag.String("configPath", "./ping-grpc.conf.json", "config file path")
+	argShowConfigFlg   = flag.Bool("printConfig", false, "show default config")
+	argShowVersionFlag = flag.Bool("version", false, "show version")
 )
 
 func init() {
 	flag.Parse()
 
-	if *debugFlag {
+	if *argDebugFlag {
 		logger.SetEnableLevel(labelinglog.FlgsetAll)
 	} else {
 		logger.SetEnableLevel(labelinglog.FlgsetCommon)
@@ -57,13 +64,18 @@ func init() {
 }
 
 func main() {
-	sunMain()
+	subMain()
 	os.Exit(exitCode)
 }
 
-func sunMain() {
-	if *printConfigFlg {
-		fmt.Fprint(os.Stdout, configStringify(DefaultConfig()))
+func subMain() {
+	if *argShowVersionFlag {
+		fmt.Fprint(os.Stdout, "Version "+metaVersion+"\n"+"Revision "+metaRevision+"\n")
+		return
+	}
+
+	if *argShowConfigFlg {
+		fmt.Fprint(os.Stdout, configStringify(DefaultConfig())+"\n")
 		return
 	}
 
@@ -72,13 +84,13 @@ func sunMain() {
 	childCtx, childCtxCancel := context.WithCancel(context.Background())
 	defer childCtxCancel()
 
-	config, err := configLoad(*configPath)
+	config, err := configLoad(*argConfigPath)
 	if err != nil {
 		logger.Log(labelinglog.FlgFatal, err.Error())
 		exitCode = 1
 		return
 	}
-	if *debugFlag {
+	if *argDebugFlag {
 		logger.Log(labelinglog.FlgDebug, "now config")
 		logger.LogMultiLines(labelinglog.FlgDebug, configStringify(config))
 	}
@@ -95,10 +107,8 @@ func sunMain() {
 	wgFinish.Add(1)
 	go (func() {
 		defer wgFinish.Done()
-		defer (func() {
-			defer childCtxCancel()
-			logger.Log(labelinglog.FlgInfo, "finish pingServer")
-		})()
+		defer childCtxCancel()
+		defer logger.Log(labelinglog.FlgInfo, "finish pingServer")
 		logger.Log(labelinglog.FlgInfo, "start pingServer")
 
 		pingServ.serv(childCtx)
@@ -107,10 +117,8 @@ func sunMain() {
 	wgFinish.Add(1)
 	go (func() {
 		defer wgFinish.Done()
-		defer (func() {
-			defer childCtxCancel()
-			logger.Log(labelinglog.FlgInfo, "finish grpcServer.Serve")
-		})()
+		defer childCtxCancel()
+		defer logger.Log(labelinglog.FlgInfo, "finish grpcServer.Serve")
 		logger.Log(labelinglog.FlgInfo, "start grpcServer.Serve "+config.ListenIPAddress)
 
 		listenPort, err := net.Listen("tcp", config.ListenIPAddress)
@@ -132,10 +140,8 @@ func sunMain() {
 	wgFinish.Add(1)
 	go (func() {
 		defer wgFinish.Done()
-		defer (func() {
-			defer childCtxCancel()
-			logger.Log(labelinglog.FlgInfo, "finish grpcServer.GracefulStop listener")
-		})()
+		defer childCtxCancel()
+		defer logger.Log(labelinglog.FlgInfo, "finish grpcServer.GracefulStop listener")
 		logger.Log(labelinglog.FlgInfo, "start grpcServer.GracefulStop listener")
 
 		select {
@@ -148,10 +154,8 @@ func sunMain() {
 	wgFinish.Add(1)
 	go (func() {
 		defer wgFinish.Done()
-		defer (func() {
-			defer childCtxCancel()
-			logger.Log(labelinglog.FlgInfo, "finish syscall listener")
-		})()
+		defer childCtxCancel()
+		defer logger.Log(labelinglog.FlgInfo, "finish syscall listener")
 		logger.Log(labelinglog.FlgInfo, "start syscall listener")
 
 		c := make(chan os.Signal)
