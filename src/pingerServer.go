@@ -13,28 +13,37 @@ import (
 )
 
 type pingerServer struct {
-	chStart chan tStartReq
-	pingers *tPingers
-	config  Config
+	chStartReq   chan tStartReq
+	ctxStartWait context.Context
+	pingers      *tPingers
+	config       Config
 }
 
 func newPingerServer(config Config) pingerServer {
+	childCtx, childCtxCancel := context.WithCancel(context.Background())
+	childCtxCancel()
+
 	return pingerServer{
-		chStart: make(chan tStartReq, 10),
-		pingers: &tPingers{list: make(map[uint16]*tPingersEntry)},
-		config:  config,
+		chStartReq:   make(chan tStartReq, 10),
+		ctxStartWait: childCtx,
+		pingers:      &tPingers{list: make(map[uint16]*tPingersEntry)},
+		config:       config,
 	}
 }
 
 func (thisServer *pingerServer) serv(ctx context.Context) {
 	wgChild := sync.WaitGroup{}
 
+	childCtx, childCtxCancel := context.WithCancel(ctx)
+	defer childCtxCancel()
+	thisServer.ctxStartWait = childCtx
+
 	(func() {
 		for {
 			select {
 			case <-ctx.Done():
 				return
-			case request := <-thisServer.chStart:
+			case request := <-thisServer.chStartReq:
 				wgChild.Add(1)
 				go (func() {
 					defer wgChild.Done()
@@ -127,7 +136,7 @@ func (thisServer *pingerServer) pingerStart(ctx context.Context, request tStartR
 		defer thisServer.pingers.Unlock()
 		if pinger, ok := thisServer.pingers.list[id]; ok {
 			pinger.entry = p
-			close(pinger.running)
+			pinger.ctxStartWaitDoneFunc()
 		} else {
 			childCtxCancel()
 		}
@@ -162,12 +171,16 @@ func (thisServer *pingerServer) pingerStartReq(req *pb.StartRequest) *pb.PingerI
 		}
 	}
 
-	thisServer.pingers.addPinger(id, &tPingersEntry{
-		running: make(chan struct{}),
-		entry:   nil,
-	})
+	{
+		childCtxStartWait, childCtxStartWaitDoneFunc := context.WithCancel(thisServer.ctxStartWait)
+		thisServer.pingers.addPinger(id, &tPingersEntry{
+			ctxStartWait:         childCtxStartWait,
+			ctxStartWaitDoneFunc: childCtxStartWaitDoneFunc,
+			entry:                nil,
+		})
+	}
 
-	thisServer.chStart <- tStartReq{
+	thisServer.chStartReq <- tStartReq{
 		id:                    id,
 		description:           req.GetDescription(),
 		targets:               targets,
@@ -185,7 +198,7 @@ func (thisServer *pingerServer) pingerStartReq(req *pb.StartRequest) *pb.PingerI
 
 func (thisServer *pingerServer) pingerStop(id uint16) {
 	if pinger, ok := thisServer.pingers.getPinger(id); ok {
-		<-pinger.running
+		<-pinger.ctxStartWait.Done()
 		if pinger.entry != nil {
 			pinger.entry.cancelFunc()
 		}
@@ -215,7 +228,7 @@ func (thisServer *pingerServer) getPingersIDList() *pb.PingerList {
 
 func (thisServer *pingerServer) info(id uint16) *pb.PingerInfo {
 	if pinger, ok := thisServer.pingers.getPinger(id); ok {
-		<-pinger.running
+		<-pinger.ctxStartWait.Done()
 		if pinger.entry != nil {
 			info := pinger.entry.pinger.GetInfo()
 
@@ -252,11 +265,9 @@ func (thisServer *pingerServer) getsIcmpResult(id uint16) <-chan *pb.IcmpResult 
 	ch := make(chan *pb.IcmpResult, thisServer.config.GrpcStreamBuffer)
 
 	if pinger, ok := thisServer.pingers.getPinger(id); ok {
-		<-pinger.running
+		<-pinger.ctxStartWait.Done()
 		if pinger.entry != nil {
-			pinger.entry.chResultListener.Lock()
-			defer pinger.entry.chResultListener.Unlock()
-			pinger.entry.chResultListener.list = append(pinger.entry.chResultListener.list, ch)
+			pinger.entry.addResultListener(ch)
 		} else {
 			close(ch)
 		}
@@ -271,11 +282,9 @@ func (thisServer *pingerServer) getsStatistics(id uint16) <-chan *pb.Statistics 
 	ch := make(chan *pb.Statistics, thisServer.config.GrpcStreamBuffer)
 
 	if pinger, ok := thisServer.pingers.getPinger(id); ok {
-		<-pinger.running
+		<-pinger.ctxStartWait.Done()
 		if pinger.entry != nil {
-			pinger.entry.chStatisticsListener.Lock()
-			defer pinger.entry.chStatisticsListener.Unlock()
-			pinger.entry.chStatisticsListener.list = append(pinger.entry.chStatisticsListener.list, ch)
+			pinger.entry.addStatisticsListener(ch)
 		} else {
 			close(ch)
 		}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"sync"
 )
 
@@ -9,8 +10,9 @@ type tPingers struct {
 	list map[uint16]*tPingersEntry
 }
 type tPingersEntry struct {
-	running chan struct{}
-	entry   *tPingerWrap
+	ctxStartWait         context.Context
+	ctxStartWaitDoneFunc context.CancelFunc
+	entry                *tPingerWrap
 }
 
 func (thisPingers *tPingers) addPinger(id uint16, pinger *tPingersEntry) {
