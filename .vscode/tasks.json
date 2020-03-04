@@ -4,7 +4,7 @@
         {
             "label": "go-build",
             "type": "shell",
-            "command": "GOOS=linux GOARCH=amd64 go build -ldflags \"-X main.metaVersion=$(git describe --tags --abbrev=0) -X main.metaRevision=$(git rev-parse --short HEAD)\" -o build/ping-grpc ./src && sudo setcap cap_net_raw=ep build/ping-grpc",
+            "command": "docker exec -it go_build_ping-grpc-server target_data/ping-grpc-server/.script/go_build.sh 'linux' 'amd64' 'build/ping-grpc-server' && sudo setcap cap_net_raw=ep 'build/ping-grpc-server'",
             "args": [],
             "group": {
                 "kind": "build",
@@ -25,7 +25,7 @@
         {
             "label": "go-build-windows",
             "type": "shell",
-            "command": "GOOS=windows GOARCH=amd64 go build -ldflags \"-X main.metaVersion=$(git describe --tags --abbrev=0) -X main.metaRevision=$(git rev-parse --short HEAD)\" -o build/win-ping-grpc.exe ./src",
+            "command": "docker exec -it go_build_ping-grpc-server target_data/ping-grpc-server/.script/go_build.sh 'windows' 'amd64' 'build/win-ping-grpc.exe'",
             "args": [],
             "presentation": {
                 "echo": false,
@@ -44,7 +44,6 @@
             "type": "shell",
             "command": "_USER=\"$(id -u):$(id -g)\" docker-compose -f .docker/docker-compose.yml build",
             "problemMatcher": []
-            
         },
         {
             "label": "develop container start",
@@ -61,7 +60,7 @@
         {
             "label": "protobuf build in container",
             "type": "shell",
-            "command": "docker exec -it proto_build_ping-grpc target_data/.script/proto_build.sh",
+            "command": "docker exec -it proto_build_ping-grpc-server target_data/.script/proto_build.sh",
             "problemMatcher": []
         }
     ]

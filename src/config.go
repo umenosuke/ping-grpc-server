@@ -9,7 +9,7 @@ import (
 type Config struct {
 	ListenIPAddress       string      `json:"ListenIPAddress"`
 	EnableAccessLog       bool        `json:"EnableAccessLog"`
-	LoggingPath           tLog        `json:"LoggingPath"`
+	LoggingPath           tLogPath    `json:"LoggingPath"`
 	UseTLS                bool        `json:"UseTLS"`
 	CACertificatePath     string      `json:"CACertificatePath"`
 	ServerCertificatePath string      `json:"ServerCertificatePath"`
@@ -27,7 +27,7 @@ type tValueLimit struct {
 	StatisticsIntervalSec tValueRange `json:"StatisticsIntervalSec"`
 }
 
-type tLog struct {
+type tLogPath struct {
 	Aceess string `json:"Aceess"`
 	Error  string `json:"Error"`
 }
@@ -42,7 +42,7 @@ func DefaultConfig() Config {
 	return Config{
 		ListenIPAddress: "127.0.0.1:5555",
 		EnableAccessLog: true,
-		LoggingPath: tLog{
+		LoggingPath: tLogPath{
 			Aceess: "",
 			Error:  "",
 		},

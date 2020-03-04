@@ -5,9 +5,10 @@ import (
 	"sync"
 	"time"
 
-	"umenosuke.net/labelinglog"
-	pb "umenosuke.net/ping-grpc/proto/go/pingGrpc"
-	"umenosuke.net/pinger4"
+	"github.com/umenosuke/labelinglog"
+	"github.com/umenosuke/pinger4"
+
+	pb "github.com/umenosuke/ping-grpc-server/proto/go/pingGrpc"
 )
 
 type tPingerWrap struct {

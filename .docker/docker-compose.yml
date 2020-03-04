@@ -1,10 +1,18 @@
 version: '3'
 services:
-  proto_build-image_ping-grpc:
+  proto_build_ping-grpc-server:
     build: proto_build
     tty: true
     user: "${_USER}"
     privileged: true
-    container_name: proto_build_ping-grpc
+    container_name: proto_build_ping-grpc-server
     volumes:
       - "../proto/:/target_data"
+  go_build_ping-grpc-server:
+    build: go_build
+    tty: true
+    user: "${_USER}"
+    privileged: true
+    container_name: go_build_ping-grpc-server
+    volumes:
+      - "../:/target_data/ping-grpc-server"

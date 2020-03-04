@@ -25,9 +25,9 @@ import (
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 
-	"umenosuke.net/labelinglog"
+	"github.com/umenosuke/labelinglog"
 
-	pb "umenosuke.net/ping-grpc/proto/go/pingGrpc"
+	pb "github.com/umenosuke/ping-grpc-server/proto/go/pingGrpc"
 )
 
 const terminateTimeOutSec = 5

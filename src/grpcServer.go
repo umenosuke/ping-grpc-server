@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 
-	"umenosuke.net/labelinglog"
-	pb "umenosuke.net/ping-grpc/proto/go/pingGrpc"
+	"github.com/umenosuke/labelinglog"
+	pb "github.com/umenosuke/ping-grpc-server/proto/go/pingGrpc"
 )
 
 type grpcServer struct {

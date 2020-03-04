@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "umenosuke.net/ping-grpc/proto/go/pingGrpc"
+	pb "github.com/umenosuke/ping-grpc-server/proto/go/pingGrpc"
 )
 
 type tStartReq struct {
