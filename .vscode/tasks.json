@@ -54,7 +54,7 @@
         {
             "label": "develop container stop",
             "type": "shell",
-            "command": "docker-compose -f .docker/docker-compose.yml down",
+            "command": "_USER=\"$(id -u):$(id -g)\" docker-compose -f .docker/docker-compose.yml down",
             "problemMatcher": []
         },
         {

@@ -5,39 +5,73 @@ import (
 	"io/ioutil"
 )
 
-// Config a
+// Config 設定ファイルの中身
 type Config struct {
-	ListenIPAddress       string      `json:"ListenIPAddress"`
-	EnableAccessLog       bool        `json:"EnableAccessLog"`
-	LoggingPath           tLogPath    `json:"LoggingPath"`
-	UseTLS                bool        `json:"UseTLS"`
-	CACertificatePath     string      `json:"CACertificatePath"`
-	ServerCertificatePath string      `json:"ServerCertificatePath"`
-	ServerPrivateKeyPath  string      `json:"ServerPrivateKeyPath"`
-	ICMPSourceIPAddress   string      `json:"ICMPSourceIPAddress"`
-	Limit                 tValueLimit `json:"Limit"`
-	GrpcStreamBuffer      uint        `json:"BufferGrpcStream"`
+	//gRPCで待ち受けるアドレス(`IP`:`port`)
+	ListenIPAddress string `json:"ListenIPAddress"`
+
+	//アクセスログを出力するかどうか
+	EnableAccessLog bool `json:"EnableAccessLog"`
+
+	//アクセスログのパス
+	LoggingPath tLogPath `json:"LoggingPath"`
+
+	//TLSを利用するかどうか
+	UseTLS bool `json:"UseTLS"`
+
+	//CA証明書のパス
+	CACertificatePath string `json:"CACertificatePath"`
+
+	//サーバー証明書のパス
+	ServerCertificatePath string `json:"ServerCertificatePath"`
+
+	//サーバー秘密鍵のパス
+	ServerPrivateKeyPath string `json:"ServerPrivateKeyPath"`
+
+	//ICMPを撃つアドレス(基本0.0.0.0でいいかと)
+	ICMPSourceIPAddress string `json:"ICMPSourceIPAddress"`
+
+	//リクエストの値を制限
+	Limit tValueLimit `json:"Limit"`
+
+	//
+	GrpcStreamBuffer uint `json:"BufferGrpcStream"`
 }
 
-type tValueLimit struct {
-	StopPingerSec         tValueRange `json:"StopPingerSec"`
-	IntervalMillisec      tValueRange `json:"IntervalMillisec"`
-	TimeoutMillisec       tValueRange `json:"TimeoutMillisec"`
-	StatisticsCountsNum   tValueRange `json:"StatisticsCountsNum"`
-	StatisticsIntervalSec tValueRange `json:"StatisticsIntervalSec"`
-}
-
+//アクセスログのパス
+//空文字列で標準出力へ
 type tLogPath struct {
 	Aceess string `json:"Aceess"`
 	Error  string `json:"Error"`
 }
 
+//リクエストの値を制限
+type tValueLimit struct {
+	//pingを撃ち続ける時間(秒)
+	StopPingerSec tValueRange `json:"StopPingerSec"`
+
+	//一つの対象へのpingを撃つインターバル(ミリ秒)
+	IntervalMillisec tValueRange `json:"IntervalMillisec"`
+
+	//pingのタイムアウトまでの時間(ミリ秒)
+	TimeoutMillisec tValueRange `json:"TimeoutMillisec"`
+
+	//pingの統計をとるため、過去いくつの結果を保持するか
+	StatisticsCountsNum tValueRange `json:"StatisticsCountsNum"`
+
+	//pingの統計を集計するインターバル
+	StatisticsIntervalSec tValueRange `json:"StatisticsIntervalSec"`
+}
+
+//値の下限値と上限値
+//Min <= 値 <= MAX
+//になるように制限
 type tValueRange struct {
 	Min uint64 `json:"Min"`
 	Max uint64 `json:"Max"`
 }
 
-// DefaultConfig a
+// DefaultConfig is return default value config
 func DefaultConfig() Config {
 	return Config{
 		ListenIPAddress: "127.0.0.1:5555",
