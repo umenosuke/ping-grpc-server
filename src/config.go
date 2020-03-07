@@ -34,7 +34,7 @@ type Config struct {
 	//リクエストの値を制限
 	Limit tValueLimit `json:"Limit"`
 
-	//
+	//gRPCのストリームへ投げる用のチャンネルのバッファ
 	GrpcStreamBuffer uint `json:"BufferGrpcStream"`
 }
 
