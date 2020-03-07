@@ -201,6 +201,7 @@ func subMain() {
 
 func getGrpcServerOption(ctx context.Context, wgFinish *sync.WaitGroup, config Config) ([]grpc.ServerOption, error) {
 	grpcServerOption := make([]grpc.ServerOption, 0)
+
 	{
 		grpcServerOption = append(grpcServerOption, grpc.KeepaliveParams(keepalive.ServerParameters{
 			Time:    1 * time.Second,
