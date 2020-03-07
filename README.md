@@ -33,6 +33,21 @@ ping-grpc.conf.json (設定ファイル)を編集
 | ServerCertificatePath | サーバー証明書のパス | string \`file path\` |
 | ServerPrivateKeyPath | サーバー秘密鍵のパス | string \`file path\` |
 
+実行
+```
+./ping-grpc-server
+```
+
+### TLS利用する場合
+
+[ここ](https://github.com/umenosuke/x509helper)などを参考に
+
+- CAの証明書
+- サーバー証明書と秘密鍵
+- クライアント証明書と秘密鍵
+
+を作成してください
+
 ### オプションなど
 
 ```
@@ -100,13 +115,3 @@ _USER="$(id -u):$(id -g)" docker-compose -f .docker/docker-compose.yml down
 ```
 build/ping-grpc-server
 ```
-
-### TLS利用する場合
-
-[ここ](https://github.com/umenosuke/x509helper)などを参考に
-
-- CAの証明書
-- サーバー証明書と秘密鍵
-- クライアント証明書と秘密鍵
-
-を作成してください
