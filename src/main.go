@@ -95,13 +95,13 @@ func subMain() {
 		logger.LogMultiLines(labelinglog.FlgDebug, configStringify(config))
 	}
 
-	grpcServerOption, err := getGrpcServerOption(childCtx, &wgFinish, config)
+	grpcServerOptions, err := getGrpcServerOptions(childCtx, &wgFinish, config)
 	if err != nil {
 		logger.Log(labelinglog.FlgFatal, err.Error())
 		exitCode = 1
 		return
 	}
-	server := grpc.NewServer(grpcServerOption...)
+	server := grpc.NewServer(grpcServerOptions...)
 	pingServ := newPingerServer(config)
 
 	wgFinish.Add(1)
@@ -199,11 +199,11 @@ func subMain() {
 	}
 }
 
-func getGrpcServerOption(ctx context.Context, wgFinish *sync.WaitGroup, config Config) ([]grpc.ServerOption, error) {
-	grpcServerOption := make([]grpc.ServerOption, 0)
+func getGrpcServerOptions(ctx context.Context, wgFinish *sync.WaitGroup, config Config) ([]grpc.ServerOption, error) {
+	grpcServerOptions := make([]grpc.ServerOption, 0)
 
 	{
-		grpcServerOption = append(grpcServerOption, grpc.KeepaliveParams(keepalive.ServerParameters{
+		grpcServerOptions = append(grpcServerOptions, grpc.KeepaliveParams(keepalive.ServerParameters{
 			Time:    1 * time.Second,
 			Timeout: 10 * time.Second,
 		}))
@@ -234,7 +234,7 @@ func getGrpcServerOption(ctx context.Context, wgFinish *sync.WaitGroup, config C
 			ClientCAs:    certPool,
 			MinVersion:   tls.VersionTLS12,
 		})
-		grpcServerOption = append(grpcServerOption, grpc.Creds(creds))
+		grpcServerOptions = append(grpcServerOptions, grpc.Creds(creds))
 	}
 
 	if config.EnableAccessLog {
@@ -284,7 +284,7 @@ func getGrpcServerOption(ctx context.Context, wgFinish *sync.WaitGroup, config C
 		ErrorLogger.SetEnableLevel(labelinglog.FlgsetAll)
 		ErrorLogger.DisableFilename()
 
-		grpcServerOption = append(grpcServerOption, grpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		grpcServerOptions = append(grpcServerOptions, grpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 			clientIP := "unknown"
 			if p, ok := peer.FromContext(ctx); ok {
 				clientIP = p.Addr.String()
@@ -300,7 +300,7 @@ func getGrpcServerOption(ctx context.Context, wgFinish *sync.WaitGroup, config C
 			return resp, err
 		}))
 
-		grpcServerOption = append(grpcServerOption, grpc.StreamInterceptor(func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		grpcServerOptions = append(grpcServerOptions, grpc.StreamInterceptor(func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 			clientIP := "unknown"
 			if p, ok := peer.FromContext(ss.Context()); ok {
 				clientIP = p.Addr.String()
@@ -325,5 +325,5 @@ func getGrpcServerOption(ctx context.Context, wgFinish *sync.WaitGroup, config C
 		}))
 	}
 
-	return grpcServerOption, nil
+	return grpcServerOptions, nil
 }
