@@ -18,7 +18,13 @@ AS内部と外部からの疎通確認とかに
 
 ### 例
 
-設定ファイルを作成
+実行
+```
+./ping-grpc-server -config '{"UseTLS":false}'
+```
+
+
+or 設定ファイルを作成
 ```
 ./ping-grpc-server -printConfig >> ping-grpc.conf.json
 ```
@@ -35,7 +41,7 @@ ping-grpc.conf.json (設定ファイル)を編集
 
 実行
 ```
-./ping-grpc-server
+./ping-grpc-server -configPath ping-grpc.conf.json
 ```
 
 ### TLS利用する場合
@@ -52,8 +58,10 @@ ping-grpc.conf.json (設定ファイル)を編集
 ```
 $ ./ping-grpc-server -help
 Usage of ./ping-grpc-server:
+  -config string
+        config json string (default "{}")
   -configPath string
-        config file path (default "./ping-grpc.conf.json")
+        config file path
   -debug
         print debug log
   -printConfig
@@ -70,7 +78,8 @@ type Config struct
 がそのままエンコードされた形です<br>
 値の詳細についてはコメントを参照してください
 
-コンフィグファイルに無い項目はデフォルト値になります
+引数 > 設定ファイル > デフォルト値<br>
+の優先度で設定されます
 
 ## ビルド方法
 
