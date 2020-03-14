@@ -46,8 +46,8 @@ var (
 
 var (
 	argDebugFlag       = flag.Bool("debug", false, "print debug log")
-	argConfig          = flag.String("config", "", "config json string")
-	argConfigPath      = flag.String("configPath", "./ping-grpc.conf.json", "config file path")
+	argConfig          = flag.String("config", "{}", "config json string")
+	argConfigPath      = flag.String("configPath", "", "config file path")
 	argShowConfigFlg   = flag.Bool("printConfig", false, "show default config")
 	argShowVersionFlag = flag.Bool("version", false, "show version")
 )
