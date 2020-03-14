@@ -54,6 +54,12 @@
         {
             "label": "develop container stop",
             "type": "shell",
+            "command": "_USER=\"$(id -u):$(id -g)\" docker-compose -f .docker/docker-compose.yml stop",
+            "problemMatcher": []
+        },
+        {
+            "label": "develop container remove",
+            "type": "shell",
             "command": "_USER=\"$(id -u):$(id -g)\" docker-compose -f .docker/docker-compose.yml down",
             "problemMatcher": []
         },
