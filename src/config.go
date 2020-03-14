@@ -123,18 +123,19 @@ func crump(value uint64, limit tValueRange) uint64 {
 	return value
 }
 
-func configLoad(path string) (Config, error) {
+func configLoad(path string, configJSON string) (Config, error) {
 	res := DefaultConfig()
 
 	jsonString, err := ioutil.ReadFile(path)
 	if err != nil {
 		return res, err
 	}
-
 	err = json.Unmarshal(jsonString, &res)
 	if err != nil {
 		return res, err
 	}
+
+	err = json.Unmarshal([]byte(configJSON), &res)
 
 	return res, nil
 }

@@ -46,6 +46,7 @@ var (
 
 var (
 	argDebugFlag       = flag.Bool("debug", false, "print debug log")
+	argConfig          = flag.String("config", "", "config json string")
 	argConfigPath      = flag.String("configPath", "./ping-grpc.conf.json", "config file path")
 	argShowConfigFlg   = flag.Bool("printConfig", false, "show default config")
 	argShowVersionFlag = flag.Bool("version", false, "show version")
@@ -84,7 +85,7 @@ func subMain() {
 	childCtx, childCtxCancel := context.WithCancel(context.Background())
 	defer childCtxCancel()
 
-	config, err := configLoad(*argConfigPath)
+	config, err := configLoad(*argConfigPath, *argConfig)
 	if err != nil {
 		logger.Log(labelinglog.FlgFatal, err.Error())
 		exitCode = 1
