@@ -25,7 +25,7 @@
         {
             "label": "go-build-windows",
             "type": "shell",
-            "command": "docker exec -it go_build_ping-grpc-server target_data/ping-grpc-server/.script/go_build.sh 'windows' 'amd64' 'build/win-ping-grpc.exe'",
+            "command": "docker exec -it go_build_ping-grpc-server target_data/ping-grpc-server/.script/go_build.sh 'windows' 'amd64' 'build/win-ping-grpc-server.exe'",
             "args": [],
             "presentation": {
                 "echo": false,
