@@ -4,19 +4,13 @@
         {
             "label": "go-build",
             "type": "shell",
-            "command": "docker exec -it go_build_ping-grpc-server target_data/ping-grpc-server/.script/go_build.sh 'linux' 'amd64' 'build/ping-grpc-server' && sudo setcap cap_net_raw=ep 'build/ping-grpc-server'",
-            "args": [],
+            "command": "docker exec -it go_build_ping-grpc-server target_data/.script/go_build.sh 'linux' 'amd64' './src' 'build/ping-grpc-server' && sudo setcap cap_net_raw=ep 'build/ping-grpc-server'",
+            "dependsOn": [
+                "develop container start"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "presentation": {
-                "echo": false,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": false
             },
             "problemMatcher": [
                 "$go"
@@ -25,16 +19,21 @@
         {
             "label": "go-build-windows",
             "type": "shell",
-            "command": "docker exec -it go_build_ping-grpc-server target_data/ping-grpc-server/.script/go_build.sh 'windows' 'amd64' 'build/win-ping-grpc-server.exe'",
-            "args": [],
-            "presentation": {
-                "echo": false,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": false
-            },
+            "command": "docker exec -it go_build_ping-grpc-server target_data/.script/go_build.sh 'windows' 'amd64' './src' 'build/win-ping-grpc-server.exe'",
+            "dependsOn": [
+                "develop container start"
+            ],
+            "problemMatcher": [
+                "$go"
+            ]
+        },
+        {
+            "label": "go-build-release",
+            "type": "shell",
+            "command": "docker exec -it go_build_ping-grpc-server target_data/.script/go_build_release.sh",
+            "dependsOn": [
+                "develop container start"
+            ],
             "problemMatcher": [
                 "$go"
             ]
@@ -48,7 +47,7 @@
         {
             "label": "develop container start",
             "type": "shell",
-            "command": "_USER=\"$(id -u):$(id -g)\" docker-compose -f .docker/docker-compose.yml up",
+            "command": "_USER=\"$(id -u):$(id -g)\" docker-compose -f .docker/docker-compose.yml up -d",
             "problemMatcher": []
         },
         {
@@ -67,6 +66,9 @@
             "label": "protobuf build in container",
             "type": "shell",
             "command": "docker exec -it proto_build_ping-grpc-server target_data/.script/proto_build.sh",
+            "dependsOn": [
+                "develop container start"
+            ],
             "problemMatcher": []
         }
     ]
