@@ -8,7 +8,7 @@ import (
 	"github.com/umenosuke/labelinglog"
 	"github.com/umenosuke/pinger4"
 
-	pb "github.com/umenosuke/ping-grpc-server/proto/go/pingGrpc"
+	pb "github.com/umenosuke/ping-grpc-server/proto/pingGrpc"
 )
 
 type tPingerWrap struct {

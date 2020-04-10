@@ -27,7 +27,7 @@ import (
 
 	"github.com/umenosuke/labelinglog"
 
-	pb "github.com/umenosuke/ping-grpc-server/proto/go/pingGrpc"
+	pb "github.com/umenosuke/ping-grpc-server/proto/pingGrpc"
 )
 
 const terminateTimeOutSec = 5
