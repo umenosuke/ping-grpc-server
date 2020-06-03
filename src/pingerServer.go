@@ -64,7 +64,7 @@ func (thisServer *pingerServer) pingerStart(ctx context.Context, request tStartR
 	wgChild := sync.WaitGroup{}
 
 	config := pinger4.DefaultConfig()
-	config.DebugEnable = *argDebugFlag
+	config.DebugEnable = argDebugFlag
 	config.DebugPrintIntervalSec = debugPrintIntervalSec
 	config.SourceIPAddress = thisServer.config.ICMPSourceIPAddress
 	limit := thisServer.config.Limit
@@ -75,7 +75,7 @@ func (thisServer *pingerServer) pingerStart(ctx context.Context, request tStartR
 	id := request.id
 	pinger := pinger4.New(int(id), config)
 	pinger.SetLogWriter(labelinglog.FlgsetAll, serverLogWriter)
-	if *argDebugFlag {
+	if argDebugFlag {
 		pinger.SetLogEnableLevel(labelinglog.FlgsetAll)
 	} else {
 		pinger.SetLogEnableLevel(labelinglog.FlgsetCommon)

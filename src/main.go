@@ -45,37 +45,43 @@ var (
 )
 
 var (
-	argDebugFlag       = flag.Bool("debug", false, "print debug log")
-	argConfig          = flag.String("config", "{}", "config json string")
-	argConfigPath      = flag.String("configPath", "", "config file path")
-	argShowConfigFlg   = flag.Bool("printConfig", false, "show default config")
-	argShowVersionFlag = flag.Bool("version", false, "show version")
+	argDebugFlag       bool
+	argConfig          string
+	argConfigPath      string
+	argShowConfigFlg   bool
+	argShowVersionFlag bool
 )
 
 func init() {
-	flag.Parse()
-
-	if *argDebugFlag {
-		logger.SetEnableLevel(labelinglog.FlgsetAll)
-	} else {
-		logger.SetEnableLevel(labelinglog.FlgsetCommon)
-	}
+	flag.BoolVar(&argDebugFlag, "debug", false, "print debug log")
+	flag.StringVar(&argConfig, "config", "{}", "config json string")
+	flag.StringVar(&argConfigPath, "configPath", "", "config file path")
+	flag.BoolVar(&argShowConfigFlg, "printConfig", false, "show default config")
+	flag.BoolVar(&argShowVersionFlag, "version", false, "show version")
 
 	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {
+	flag.Parse()
+
+	if argDebugFlag {
+		logger.SetEnableLevel(labelinglog.FlgsetAll)
+	} else {
+		logger.SetEnableLevel(labelinglog.FlgsetCommon)
+	}
+
 	subMain()
 	os.Exit(exitCode)
 }
 
 func subMain() {
-	if *argShowVersionFlag {
+	if argShowVersionFlag {
 		fmt.Fprint(os.Stdout, "Version "+metaVersion+"\n"+"Revision "+metaRevision+"\n")
 		return
 	}
 
-	if *argShowConfigFlg {
+	if argShowConfigFlg {
 		fmt.Fprint(os.Stdout, configStringify(DefaultConfig())+"\n")
 		return
 	}
@@ -85,13 +91,13 @@ func subMain() {
 	childCtx, childCtxCancel := context.WithCancel(context.Background())
 	defer childCtxCancel()
 
-	config, err := configLoad(*argConfigPath, *argConfig)
+	config, err := configLoad(argConfigPath, argConfig)
 	if err != nil {
 		logger.Log(labelinglog.FlgFatal, err.Error())
 		exitCode = 1
 		return
 	}
-	if *argDebugFlag {
+	if argDebugFlag {
 		logger.Log(labelinglog.FlgDebug, "now config")
 		logger.LogMultiLines(labelinglog.FlgDebug, configStringify(config))
 	}
