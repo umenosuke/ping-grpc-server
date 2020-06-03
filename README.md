@@ -66,6 +66,7 @@ Usage of ./ping-grpc-server:
         print debug log
   -printConfig
         show default config
+  -v    show version (shorthand)
   -version
         show version
 ```
