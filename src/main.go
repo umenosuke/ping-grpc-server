@@ -58,6 +58,7 @@ func init() {
 	flag.StringVar(&argConfigPath, "configPath", "", "config file path")
 	flag.BoolVar(&argShowConfigFlg, "printConfig", false, "show default config")
 	flag.BoolVar(&argShowVersionFlag, "version", false, "show version")
+	flag.BoolVar(&argShowVersionFlag, "v", false, "show version (shorthand)")
 
 	rand.Seed(time.Now().UnixNano())
 }
