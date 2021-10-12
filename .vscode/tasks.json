@@ -77,6 +77,16 @@
                 "kind": "build",
                 "isDefault": true
             },
+        },
+        {
+            "label": "release container build",
+            "type": "shell",
+            "command": "source .script/_conf.sh; docker build --target release -t ping_grpc_server:${_GIT_TAG} -t ping_grpc_server:latest -f .docker/go_build/Dockerfile .",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "develop container build"
+            ],
+            "problemMatcher": []
         }
     ]
 }

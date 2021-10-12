@@ -22,17 +22,21 @@ ENV TZ=Asia/Tokyo
 
 FROM builder AS build
 
-COPY ./ /target_data
+COPY ./.script/ /target_data/.script
+COPY ./go.mod /target_data/go.mod
+COPY ./go.sum /target_data/go.sum
+COPY ./src/ /target_data/src
+COPY ./proto/ /target_data/proto
 
 ARG _GIT_TAG
 ARG _GIT_HASH
 
 WORKDIR /target_data
-RUN target_data/.script/go_build.sh 'linux' 'amd64' './src' "build/ping-grpc-server" && sudo setcap cap_net_raw=ep "build/ping-grpc-server";
+RUN .script/go_build.sh 'linux' 'amd64' './src' "build/ping-grpc-server" && setcap cap_net_raw=ep "build/ping-grpc-server";
 
 
-FROM alpine:latest
+FROM alpine:latest AS release
 COPY --from=build /target_data/build/ping-grpc-server .
-EXPOSE 19000
+EXPOSE 5555
 ENTRYPOINT ["/ping-grpc-server"]
 STOPSIGNAL SIGINT
