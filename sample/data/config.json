@@ -1,5 +1,5 @@
 {
-    "ListenIPAddress": "172.16.253.98:5555",
+    "ListenIPAddress": "0.0.0.0:5555",
     "EnableAccessLog": true,
     "LoggingPath": {
         "Aceess": "",

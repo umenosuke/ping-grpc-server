@@ -32,7 +32,7 @@ ARG _GIT_TAG
 ARG _GIT_HASH
 
 WORKDIR /target_data
-RUN .script/go_build.sh 'linux' 'amd64' './src' "build/ping-grpc-server" && setcap cap_net_raw=ep "build/ping-grpc-server";
+RUN .script/go_build.sh 'linux' 'amd64' './src' "build/ping-grpc-server"
 
 
 FROM alpine:latest AS release
