@@ -1,9 +1,9 @@
-FROM centos:7
+FROM centos:7 AS builder
 
 RUN yum update -y
 RUN yum install -y wget zip unzip git
 
-ARG GO_VERSION='1.14.1'
+ARG GO_VERSION='1.17.2'
 ARG GO_BINARY='go'"${GO_VERSION}"'.linux-amd64.tar.gz'
 RUN wget https://dl.google.com/go/"${GO_BINARY}" -O /tmp/"${GO_BINARY}"
 RUN tar -C /usr/local -xzf /tmp/"${GO_BINARY}"
@@ -18,3 +18,21 @@ RUN mkdir -p ${GOCACHE} && chmod 777 ${GOCACHE}
 ENV PATH=${PATH}:${GOROOT}/bin:${GOPATH}/bin
 
 ENV TZ=Asia/Tokyo
+
+
+FROM builder AS build
+
+COPY ./ /target_data
+
+ARG _GIT_TAG
+ARG _GIT_HASH
+
+WORKDIR /target_data
+RUN target_data/.script/go_build.sh 'linux' 'amd64' './src' "build/ping-grpc-server" && sudo setcap cap_net_raw=ep "build/ping-grpc-server";
+
+
+FROM alpine:latest
+COPY --from=build /target_data/build/ping-grpc-server .
+EXPOSE 19000
+ENTRYPOINT ["/ping-grpc-server"]
+STOPSIGNAL SIGINT

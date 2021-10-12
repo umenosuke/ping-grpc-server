@@ -12,7 +12,9 @@ services:
       - "../:/target_data:ro"
       - "../proto/:/target_data/proto:rw"
   go_build:
-    build: go_build
+    build: 
+      context: go_build
+      target: builder
     tty: true
     user: "${_USER}"
     privileged: true

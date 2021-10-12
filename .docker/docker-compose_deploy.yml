@@ -1,0 +1,6 @@
+version: '3.4'
+services:
+  ping_grpc_server:
+    image: go_build
+    container_name: ping_grpc_server
+    command: -debug -configPath="/data/config.json"
