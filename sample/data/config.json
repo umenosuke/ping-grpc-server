@@ -1,0 +1,36 @@
+{
+    "ListenIPAddress": "172.16.253.98:5555",
+    "EnableAccessLog": true,
+    "LoggingPath": {
+        "Aceess": "",
+        "Error": ""
+    },
+    "UseTLS": true,
+    "CACertificatePath": "/data/secret/ca.crt",
+    "ServerCertificatePath": "/data/secret/server.crt",
+    "ServerPrivateKeyPath": "/data/secret/server.pem",
+    "ICMPSourceIPAddress": "0.0.0.0",
+    "Limit": {
+        "StopPingerSec": {
+            "Min": 0,
+            "Max": 86400
+        },
+        "IntervalMillisec": {
+            "Min": 200,
+            "Max": 600000
+        },
+        "TimeoutMillisec": {
+            "Min": 100,
+            "Max": 60000
+        },
+        "StatisticsCountsNum": {
+            "Min": 1,
+            "Max": 10000
+        },
+        "StatisticsIntervalSec": {
+            "Min": 1,
+            "Max": 3600
+        }
+    },
+    "BufferGrpcStream": 5
+}

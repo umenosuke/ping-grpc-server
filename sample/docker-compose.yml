@@ -1,0 +1,9 @@
+version: '3.4'
+services:
+  ping_grpc_server:
+    image: ping_grpc_server
+    user: "${_USER}"
+    container_name: ping_grpc_server
+    volumes:
+      - "./data/:/data:ro"
+    command: -debug -configPath="/data/config.json"
